@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {FC} from 'react';
+import {db} from './DB';
+import {useLiveQuery} from 'dexie-react-hooks';
+import {Button} from 'antd';
+import {Route, Routes} from 'react-router-dom';
+import DashBoard from './Components/Layout/DashBoard';
+import Home from './Page/Home';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App: React.FC = () => {
+	const addAccount = async () => {
+		await db.accounts.add({
+			username: 'username',
+			password: 'password',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+	};
+
+	const removeAccount = async (id?: number) => {
+		id && (await db.accounts.delete(id));
+	};
+
+	const accounts = useLiveQuery(
+		() => db.accounts.reverse().sortBy('createdAt'),
+		[]
+	);
+	return (
+		<Routes>
+			<Route path='/' element={<DashBoard />}>
+				<Route path='home' element={<Home />} />
+			</Route>
+		</Routes>
+	);
+};
 
 export default App;
